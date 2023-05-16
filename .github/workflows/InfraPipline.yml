@@ -107,7 +107,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         # set this if you will be using PowerShell
-        # enable-AzPSSession: true 
+        enable-AzPSSession: true 
 
     # Deploy Databricks Workspace
     - name: Deploy ARM Template (Databricks)
