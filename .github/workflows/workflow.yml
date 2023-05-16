@@ -1,18 +1,6 @@
-File: .github/workflows/workflow.yml
-
-  on: [push]
-
-name: AzureLoginSample
-
-jobs:
-
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-    
-    - uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - run: |
-        az webapp list --query "[?state=='Running']"
+steps:
+  - name: Sample Azure action
+    with: # Set Azure credentials secret as an input
+      credentials: ${{ secrets.AZURE_CREDENTIALS }}
+    env: # Or as an environment variable
+      credentials: ${{ secrets.AZURE_CREDENTIALS }}
