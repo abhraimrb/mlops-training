@@ -52,7 +52,7 @@ bank_cust_data = pd.read_csv("Bank Customer Churn Prediction.csv")
 def get_training_and_test_data():
    X = bank_cust_data.drop(columns=["churn","customer_id"])
    y = bank_cust_data["churn"]
-   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=0)
+   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=123)
  
    return  X_train, X_test, y_train, y_test
 
