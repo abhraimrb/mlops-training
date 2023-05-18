@@ -45,41 +45,24 @@
 # COMMAND ----------
 
 import pandas as pd
-wind_farm_data = pd.read_csv("https://github.com/dbczumar/model-registry-demo-notebook/raw/master/dataset/windfarm_data.csv", index_col=0)
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler,OneHotEncoder
+bank_cust_data = pd.read_csv("Bank Customer Churn Prediction.csv")
 
-def get_training_data():
-  training_data = pd.DataFrame(wind_farm_data["2014-01-01":"2018-01-01"])
-  X = training_data.drop(columns="power")
-  y = training_data["power"]
-  return X, y
+def get_training_and_test_data():
+   X = bank_cust_data.drop(columns=["churn","customer_id"])
+   y = bank_cust_data["churn"]
+   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=0)
+ 
+   return  X_train, X_test, y_train, y_test
 
-def get_validation_data():
-  validation_data = pd.DataFrame(wind_farm_data["2018-01-01":"2019-01-01"])
-  X = validation_data.drop(columns="power")
-  y = validation_data["power"]
-  return X, y
 
-def get_weather_and_forecast():
-  format_date = lambda pd_date : pd_date.date().strftime("%Y-%m-%d")
-  today = pd.Timestamp('today').normalize()
-  week_ago = today - pd.Timedelta(days=5)
-  week_later = today + pd.Timedelta(days=5)
-  
-  past_power_output = pd.DataFrame(wind_farm_data)[format_date(week_ago):format_date(today)]
-  weather_and_forecast = pd.DataFrame(wind_farm_data)[format_date(week_ago):format_date(week_later)]
-  if len(weather_and_forecast) < 10:
-    past_power_output = pd.DataFrame(wind_farm_data).iloc[-10:-5]
-    weather_and_forecast = pd.DataFrame(wind_farm_data).iloc[-10:]
-
-  return weather_and_forecast.drop(columns="power"), past_power_output["power"]
 
 # COMMAND ----------
 
 # MAGIC %md Display a sample of the data for reference.
 
 # COMMAND ----------
-
-wind_farm_data["2019-01-01":"2019-01-14"]
 
 # COMMAND ----------
 
@@ -89,26 +72,22 @@ wind_farm_data["2019-01-01":"2019-01-14"]
 
 # COMMAND ----------
 
-# MAGIC %md Define a power forecasting model using TensorFlow Keras.
+# MAGIC %md Define a churn prediction model using scikit-learn.
 
 # COMMAND ----------
 
-import tensorflow as tf
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
+
 
 
 # COMMAND ----------
 
-def train_keras_model(X, y):
-  
-  model = Sequential()
-  model.add(Dense(100, input_shape=(X_train.shape[-1],), activation="relu", name="hidden_layer"))
-  model.add(Dense(1))
-  model.compile(loss="mse", optimizer="adam")
-
-  model.fit(X_train, y_train, epochs=100, batch_size=64, validation_split=.2)
-  return model
+def train_scikitlearn_model(X, y):
+    X_train, X_test, y_train, y_test = get_training_and_test_data()
+    categorical_features = ['country', 'gender']
+    categorical_transformer = Pipeline(steps=[('encoder', OneHotEncoder(handle_unknown = 'ignore', drop='first'))])
+    preprocessor=ColumnTransformer(transformers=[("cat", categorical_transformer,categorical_features),],remainder=StandardScaler())
+    clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", LogisticRegression())])
+    return clf
 
 # COMMAND ----------
 
@@ -121,37 +100,41 @@ def train_keras_model(X, y):
 
 # COMMAND ----------
 
-databricks configure --token
-enter host (with worksapce id start with ?O)
-enter token of model dev workspace
-databricks secrets create-scope --scope modelregistery
-databricks secrets put --scope modelregistery --key modelregistery-token --string-value dapi5d4a1a907559461e73117957709bfbb6-2
-databricks secrets put --scope modelregistery --key modelregistery-workspace-id --string-value 8074051404611178
-databricks secrets put --scope modelregistery --key modelregistery-host --string-value https://adb-8074051404611178.18.azuredatabricks.net/
+#databricks configure --token
+#enter host (with worksapce id start with ?O)
+#enter token of model dev workspace
+#databricks secrets create-scope --scope modelregistery
+#databricks secrets put --scope modelregistery --key modelregistery-token --string-value dapi5d4a1a907559461e73117957709bfbb6-2
+#databricks secrets put --scope modelregistery --key modelregistery-workspace-id --string-value 8074051404611178
+#databricks secrets put --scope modelregistery --key modelregistery-host --string-value https://adb-8074051404611178.18.azuredatabricks.net/
 
 # COMMAND ----------
 
 import mlflow
 
-registry_uri = f'databricks://modelregistery:modelregistery'
-mlflow.set_registry_uri(registry_uri)
+#registry_uri = f'databricks://modelregistery:modelregistery'
+#mlflow.set_registry_uri(registry_uri)
 
 
 # COMMAND ----------
 
 import mlflow
-import mlflow.keras
-import mlflow.tensorflow
-
-X_train, y_train = get_training_data()
+import mlflow.sklearn
 
 with mlflow.start_run():
   # Automatically capture the model's parameters, metrics, artifacts,
   # and source code with the `autolog()` function
-  mlflow.tensorflow.autolog()
-  
-  train_keras_model(X_train, y_train)
-  run_id = mlflow.active_run().info.run_id
+   mlflow.sklearn.autolog()
+   from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+   clf_model=train_scikitlearn_model(X_train, y_train)
+   predictions =  clf_model.predict(X_test)
+   predictions_proba = clf_model.predict_proba(X_test)
+   test_accuracy = accuracy_score(y_test, predictions)
+   test_precision_score = precision_score(y_test, predictions)
+   test_recall_score = recall_score(y_test, predictions)
+   test_f1_score = f1_score(y_test, predictions)
+   auc_score = roc_auc_score(y_test,  predictions_proba[:,1])
+   run_id = mlflow.active_run().info.run_id
 
 # COMMAND ----------
 
@@ -167,13 +150,13 @@ run_id
 
 # COMMAND ----------
 
-model_name = "power-forecasting-model" # Replace this with the name of your registered model, if necessary.
+model_name = "churn-prediction-model" # Replace this with the name of your registered model, if necessary.
 
 # COMMAND ----------
 
 # MAGIC %md ### Create a new registered model using the API
 # MAGIC 
-# MAGIC The following cells use the `mlflow.register_model()` function to create a new registered model whose name begins with the string `power-forecasting-model`. This also creates a new model version (for example, `Version 1` of `power-forecasting-model`).
+# MAGIC The following cells use the `mlflow.register_model()` function to create a new registered model whose name begins with the string `churn-prediction-model`. This also creates a new model version (for example, `Version 1` of `churn-prediction-model`).
 
 # COMMAND ----------
 
