@@ -134,7 +134,7 @@ with mlflow.start_run():
    categorical_features = ['country', 'gender']
    categorical_transformer = Pipeline(steps=[('encoder', OneHotEncoder(handle_unknown = 'ignore', drop='first'))])
    preprocessor=ColumnTransformer(transformers=[("cat", categorical_transformer,categorical_features),],remainder=StandardScaler())
-   clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", LogisticRegression())])
+   clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", RandomForestClassifier))])
    clf.fit(X_train,y_train)
    predictions =  clf.predict(X_test)
    predictions_proba = clf.predict_proba(X_test)
