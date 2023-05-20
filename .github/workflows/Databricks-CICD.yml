@@ -133,9 +133,9 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     env:
-      resourceGroupName: 'loony-db-rg'
-      databricksWorkspaceName: 'Databricks-LoonyProject'
-      keyVaultName: 'KeyVault-Loony1'
+      resourceGroupName: 'loony-db-rg-Dev'
+      databricksWorkspaceName: 'Databricks-LoonyProject-Dev'
+      keyVaultName: 'KeyVault-Loony1-Dev'
       NotebookDeploymentPath: '/MyProject'
       GitNotebookPath: 'notebooks/MyProject'
 
