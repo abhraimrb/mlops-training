@@ -21,13 +21,13 @@ on:
       WORKSPACE_NAME:
         description: 'Databricks workspace name'
         required: true
-        default: 'Databricks-MyProject'
+        default: 'Databricks-LoonyProject'
 
       # This is a KeyVault for holding the Service Principal to make Databricks API calls and to hold Databricks KeyVault backed Secrets
       KEY_VAULT_NAME:
         description: 'KeyVault name'
         required: true
-        default: 'KeyVault-MyProject'
+        default: 'KeyVault-LoonyProject1'
 
       # This is a KeyVault for holding the Service Principal to make Databricks API calls and to hold Databricks KeyVault backed Secrets
       SUBSCRIPTION_ID:
