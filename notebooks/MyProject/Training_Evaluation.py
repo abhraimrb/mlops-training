@@ -101,16 +101,16 @@ def train_scikitlearn_model():
 #enter host (with worksapce id start with ?O)
 #enter token of model dev workspace
 #databricks secrets create-scope --scope modelregistery
-#databricks secrets put --scope modelregistery --key modelregistery-token --string-value dapi5d4a1a907559461e73117957709bfbb6-2
-#databricks secrets put --scope modelregistery --key modelregistery-workspace-id --string-value 8074051404611178
-#databricks secrets put --scope modelregistery --key modelregistery-host --string-value https://adb-8074051404611178.18.azuredatabricks.net/
+#databricks secrets put --scope modelregistery --key modelregistery-token --string-value dapi177034f29171eee1935b6f4f6d1bc759-3
+#databricks secrets put --scope modelregistery --key modelregistery-workspace-id --string-value 2194490708457966
+#databricks secrets put --scope modelregistery --key modelregistery-host --string-value https://adb-2194490708457966.6.azuredatabricks.net/
 
 # COMMAND ----------
 
 import mlflow
 
-#registry_uri = f'databricks://modelregistery:modelregistery'
-#mlflow.set_registry_uri(registry_uri)
+registry_uri = f'databricks://modelregistery:modelregistery'
+mlflow.set_registry_uri(registry_uri)
 
 
 # COMMAND ----------
@@ -134,7 +134,7 @@ with mlflow.start_run():
    categorical_features = ['country', 'gender']
    categorical_transformer = Pipeline(steps=[('encoder', OneHotEncoder(handle_unknown = 'ignore', drop='first'))])
    preprocessor=ColumnTransformer(transformers=[("cat", categorical_transformer,categorical_features),],remainder=StandardScaler())
-   clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier",  LogisticRegression))])
+   clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier",  LogisticRegression())])
    clf.fit(X_train,y_train)
    predictions =  clf.predict(X_test)
    predictions_proba = clf.predict_proba(X_test)

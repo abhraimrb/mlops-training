@@ -9,7 +9,7 @@ import mlflow
 #mlflow.set_registry_uri(registry_uri)
 
 model_name = "churn-prediction-model"
-run_id='c9830cb0281842eb85cbb0dd9'
+run_id='8ea6ddd0c60849a4a744d1e8a9f61adf'
 # The default path where the MLflow autologging function stores the model
 artifact_path = "model"
 model_uri = "runs:/{run_id}/{artifact_path}".format(run_id=run_id, artifact_path=artifact_path)
