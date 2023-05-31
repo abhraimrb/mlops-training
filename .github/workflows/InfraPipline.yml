@@ -21,26 +21,26 @@ on:
       WORKSPACE_NAME:
         description: 'Databricks workspace name'
         required: true
-        default: 'Databricks-LoonyProject'
+        default: 'loony-mlops-ws'
 
       # This is a KeyVault for holding the Service Principal to make Databricks API calls and to hold Databricks KeyVault backed Secrets
       KEY_VAULT_NAME:
         description: 'KeyVault name'
         required: true
-        default: 'KeyVault-Loony1'
+        default: 'KeyVault-LoonyProject1'
 
       # This is a KeyVault for holding the Service Principal to make Databricks API calls and to hold Databricks KeyVault backed Secrets
       SUBSCRIPTION_ID:
         description: 'Azure Subscription Id'
         required: true
-        default: '0fec7b07-1efc-48ea-b142-6ed379f356be'
+        default: '00000000-0000-0000-0000-000000000000'
 
       # Inialize the system
       # Note: We only want to run the KeyVault ARM template once.  If you keep re-running, then you will OVERWRITE your values
       MODE:
         description: 'Deployment Mode (Databricks or Initialize-KeyVault)'
         required: true
-        default: 'Databricks'
+        default: 'Initialize-KeyVault'
 
 
 jobs:
@@ -103,11 +103,11 @@ jobs:
         
     # Login to Azure
     - name: Login via Az module
-      uses: azure/login@v1
+      uses: azure/login@v1.1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         # set this if you will be using PowerShell
-        enable-AzPSSession: true 
+        # enable-AzPSSession: true 
 
     # Deploy Databricks Workspace
     - name: Deploy ARM Template (Databricks)
@@ -133,6 +133,7 @@ jobs:
         keyvault: ${{ env.keyVaultName }}
         secrets: 'databricks-dev-ops-subscription-id,databricks-dev-ops-tenant-id,databricks-dev-ops-client-id,databricks-dev-ops-client-secret'
       id: databricksSecretAction
+
 #############################################################
 # Deploy to QA
 #############################################################
