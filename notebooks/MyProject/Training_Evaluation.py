@@ -83,7 +83,7 @@ def train_scikitlearn_model():
     categorical_features = ['country', 'gender']
     categorical_transformer = Pipeline(steps=[('encoder', OneHotEncoder(handle_unknown = 'ignore', drop='first'))])
     preprocessor=ColumnTransformer(transformers=[("cat", categorical_transformer,categorical_features),],remainder=StandardScaler())
-    clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", LogisticRegression())])
+    clf = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", RandomForestClassifier())])
     return clf
 
 # COMMAND ----------
