@@ -21,7 +21,7 @@ on:
       WORKSPACE_NAME:
         description: 'Databricks workspace name'
         required: true
-        default: 'loony-mlops-ws'
+        default: 'Databricks-LoonyProject'
 
       # This is a KeyVault for holding the Service Principal to make Databricks API calls and to hold Databricks KeyVault backed Secrets
       KEY_VAULT_NAME:
@@ -40,7 +40,7 @@ on:
       MODE:
         description: 'Deployment Mode (Databricks or Initialize-KeyVault)'
         required: true
-        default: 'Initialize-KeyVault'
+        default: 'Databricks'
 
 
 jobs:
